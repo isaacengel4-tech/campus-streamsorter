@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StreamSorter | Campus Waste Guide</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --white-paper: #2563eb;
+      --mixed-paper: #0284c7;
+      --plastics-metals: #1d4ed8;
+      --compost: #15803d;
+      --landfill: #334155;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg); color: var(--text-main); padding: 24px 16px; display: flex; justify-content: center; }
+    .container { max-width: 680px; width: 100%; display: flex; flex-direction: column; gap: 20px; }
+    header { text-align: center; }
+    h1 { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.02em; }
+    p.subtitle { color: var(--text-muted); font-size: 0.95rem; margin-top: 4px; }
+    .counter-bar { display: flex; justify-content: space-between; align-items: center; background: #e0f2fe; padding: 10px 16px; border-radius: 10px; font-size: 0.85rem; font-weight: 600; color: #0369a1; }
+    .search-section { display: flex; flex-direction: column; gap: 10px; }
+    .search-box { width: 100%; padding: 14px 18px; font-size: 1rem; border: 2px solid var(--border); border-radius: 12px; outline: none; transition: border-color 0.2s; background: #fff; }
+    .search-box:focus { border-color: #2563eb; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip { background: #f1f5f9; border: 1px solid var(--border); padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; transition: all 0.15s ease; }
+    .chip:hover { background: #e2e8f0; }
+    .result-card { background: var(--card-bg); border-radius: 16px; padding: 20px; border: 2px solid transparent; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: none; }
+    .result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .bin-badge { padding: 6px 14px; border-radius: 8px; color: #fff; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; }
+    .result-name { font-size: 1.25rem; font-weight: 700; }
+    .result-rule { margin-top: 8px; font-size: 0.95rem; color: var(--text-main); }
+    .result-tip { margin-top: 6px; font-size: 0.85rem; color: var(--text-muted); background: #f8fafc; padding: 8px 12px; border-radius: 8px; border-left: 3px solid #94a3b8; }
+    .station-title { font-size: 1rem; font-weight: 700; margin-top: 8px; }
+    .station-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+    .bin-col { background: var(--card-bg); border-radius: 12px; padding: 12px 10px; border: 1px solid var(--border); text-align: center; display: flex; flex-direction: column; gap: 6px; }
+    .bin-swatch { height: 8px; border-radius: 4px; width: 100%; }
+    .bin-title { font-size: 0.78rem; font-weight: 800; text-transform: uppercase; }
+    .bin-desc { font-size: 0.72rem; color: var(--text-muted); line-height: 1.2; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>StreamSorter</h1>
+      <p class="subtitle">Campus 5-Stream Sorting Station Guide</p>
+    </header>
+
+    <div class="counter-bar">
+      <span>Diversion Target: Prevent Contamination</span>
+      <span id="counter">Items Evaluated: 0</span>
+    </div>
+
+    <div class="search-section">
+      <input type="text" id="searchInput" class="search-box" placeholder="What are you tossing? (e.g. coffee cup, notebook paper)..." autofocus />
+      <div class="chips" id="chipsContainer"></div>
+    </div>
+
+    <div id="resultCard" class="result-card">
+      <div class="result-header">
+        <div id="resultName" class="result-name">Item Name</div>
+        <div id="resultBadge" class="bin-badge">BIN NAME</div>
+      </div>
+      <p id="resultRule" class="result-rule">Instruction</p>
+      <div id="resultTip" class="result-tip">Tip</div>
+    </div>
+
+    <div class="station-title">Station Overview (5 Streams)</div>
+    <div class="station-grid">
+      <div class="bin-col">
+        <div class="bin-swatch" style="background: var(--white-paper);"></div>
+        <div class="bin-title" style="color: var(--white-paper);">White Paper</div>
+        <div class="bin-desc">Clean printer paper, notebooks, white envelopes.</div>
+      </div>
+      <div class="bin-col">
+        <div class="bin-swatch" style="background: var(--mixed-paper);"></div>
+        <div class="bin-title" style="color: var(--mixed-paper);">Mixed Paper</div>
+        <div class="bin-desc">Cardboard, folders, color paper, clean paper boxes.</div>
+      </div>
+      <div class="bin-col">
+        <div class="bin-swatch" style="background: var(--plastics-metals);"></div>
+        <div class="bin-title" style="color: var(--plastics-metals);">Plastics & Metals</div>
+        <div class="bin-desc">Drink cans, foil, plastic bottles, clean containers.</div>
+      </div>
+      <div class="bin-col">
+        <div class="bin-swatch" style="background: var(--compost);"></div>
+        <div class="bin-title" style="color: var(--compost);">Compost</div>
+        <div class="bin-desc">Food scraps, soiled napkins, brown food boxes.</div>
+      </div>
+      <div class="bin-col">
+        <div class="bin-swatch" style="background: var(--landfill);"></div>
+        <div class="bin-title" style="color: var(--landfill);">Landfill</div>
+        <div class="bin-desc">Chip bags, styrofoam, plastic film wrappers.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const items = [
+      { name: "Printer Paper", bin: "White Paper", color: "var(--white-paper)", rule: "Goes directly in White Paper.", tip: "Keep clean and uncreased if possible. No staples required to be removed unless bulk." },
+      { name: "Lined Notebook Paper", bin: "White Paper", color: "var(--white-paper)", rule: "Tear out cleanly and put in White Paper.", tip: "Remove spiral metal or plastic wire before binning." },
+      { name: "White Envelopes", bin: "White Paper", color: "var(--white-paper)", rule: "Drop in White Paper.", tip: "Clear plastic windows are fine to leave in." },
+      { name: "Colored Paper", bin: "Mixed Paper", color: "var(--mixed-paper)", rule: "Colored sheets must go in Mixed Paper, not White Paper.", tip: "Dyes disrupt high-grade white paper pulping." },
+      { name: "Cardboard Delivery Box", bin: "Mixed Paper", color: "var(--mixed-paper)", rule: "Flatten and insert into Mixed Paper.", tip: "Remove excess packing tape; labels can remain." },
+      { name: "Clean Paper Bags & Folders", bin: "Mixed Paper", color: "var(--mixed-paper)", rule: "Goes in Mixed Paper.", tip: "Tear off metal binder brackets or plastic handles." },
+      { name: "Paper Coffee Cup", bin: "Mixed Paper", color: "var(--mixed-paper)", rule: "Sleeve in Mixed Paper. Empty cup in Mixed Paper if dry.", tip: "Plastic lid goes to Plastics & Metals; leftover coffee goes down drain." },
+      { name: "Aluminum Soda Can", bin: "Plastics & Metals", color: "var(--plastics-metals)", rule: "Place in Plastics & Metals.", tip: "Shake out remaining liquid. Do not crush if machine sorts optically." },
+      { name: "Clear Water / Soda Bottle", bin: "Plastics & Metals", color: "var(--plastics-metals)", rule: "Place in Plastics & Metals.", tip: "Empty liquid completely; keep plastic cap screwed on." },
+      { name: "Clean Aluminum Foil", bin: "Plastics & Metals", color: "var(--plastics-metals)", rule: "Ball together and drop in Plastics & Metals.", tip: "Must be free from cheese or food grease." },
+      { name: "Plastic Utensils", bin: "Plastics & Metals", color: "var(--plastics-metals)", rule: "Place in Plastics & Metals if clean.", tip: "Wipe off visible food or toss in Landfill if heavily soiled." },
+      { name: "Food Scraps & Fruit Peels", bin: "Compost", color: "var(--compost)", rule: "Toss straight into Compost.", tip: "Remove fruit stickers first; stickers do not compost." },
+      { name: "Soiled Paper Towel / Napkin", bin: "Compost", color: "var(--compost)", rule: "Always goes to Compost.", tip: "Paper fibers are too short to recycle once wetted or oiled." },
+      { name: "Greasy Pizza Box Bottom", bin: "Compost", color: "var(--compost)", rule: "Tear off the greasy half and compost it.", tip: "The clean cardboard lid can be torn off and put in Mixed Paper." },
+      { name: "Chip Bags & Candy Wrappers", bin: "Landfill", color: "var(--landfill)", rule: "Throw directly in Landfill.", tip: "Multi-layer foil/plastic film cannot be mechanically recycled." },
+      { name: "Styrofoam Container / Cup", bin: "Landfill", color: "var(--landfill)", rule: "Always Landfill.", tip: "Standard recycling sorting equipment cannot process expanded polystyrene." }
+    ];
+
+    let sortedCount = 0;
+    const searchInput = document.getElementById("searchInput");
+    const chipsContainer = document.getElementById("chipsContainer");
+    const resultCard = document.getElementById("resultCard");
+    const resultName = document.getElementById("resultName");
+    const resultBadge = document.getElementById("resultBadge");
+    const resultRule = document.getElementById("resultRule");
+    const resultTip = document.getElementById("resultTip");
+    const counterEl = document.getElementById("counter");
+
+    const sampleChips = ["Printer Paper", "Paper Coffee Cup", "Soda Can", "Pizza Box Bottom", "Food Scraps", "Chip Bags"];
+    sampleChips.forEach(chipText => {
+      const btn = document.createElement("button");
+      btn.className = "chip";
+      btn.innerText = chipText;
+      btn.onclick = () => {
+        searchInput.value = chipText;
+        evaluate(chipText);
+      };
+      chipsContainer.appendChild(btn);
+    });
+
+    function evaluate(query) {
+      const q = query.toLowerCase().trim();
+      if (!q) {
+        resultCard.style.display = "none";
+        return;
+      }
+      const match = items.find(item => item.name.toLowerCase().includes(q) || q.includes(item.name.toLowerCase().split(" ")[0]));
+      if (match) {
+        resultName.innerText = match.name;
+        resultBadge.innerText = match.bin;
+        resultBadge.style.background = match.color;
+        resultCard.style.borderColor = match.color;
+        resultRule.innerText = match.rule;
+        resultTip.innerText = "Tip: " + match.tip;
+        resultCard.style.display = "block";
+        sortedCount++;
+        counterEl.innerText = `Items Evaluated: ${sortedCount}`;
+      } else {
+        resultName.innerText = query;
+        resultBadge.innerText = "Landfill (Safe Default)";
+        resultBadge.style.background = "var(--landfill)";
+        resultCard.style.borderColor = "var(--landfill)";
+        resultRule.innerText = "Item not found in clean sorting streams. Default to Landfill to avoid contaminating recycling or compost batches.";
+        resultTip.innerText = "Tip: When in doubt, landfilling is better than wishcycling.";
+        resultCard.style.display = "block";
+      }
+    }
+
+    searchInput.addEventListener("input", (e) => evaluate(e.target.value));
+  </script>
+</body>
+</html>
